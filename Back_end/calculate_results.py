@@ -14,8 +14,8 @@ client.authenticate_with_account(account)
 
 # Get a commit by its ID
 STREAM_ID = "9e730f9975"
-COMMIT_ID = "c6384a23fd"    # Revit Renovation
-# COMMIT_ID = "a693fd7939"    # Revit New
+# COMMIT_ID = "c6384a23fd"    # Revit Renovation
+COMMIT_ID = "a693fd7939"    # Revit New
 
 
 # get the specified commit data
@@ -44,8 +44,6 @@ def calculate_cost(element,data):
                 print('dataCost=' + str(data_cost) + ' , ' + ' volume=' + str(volume) )
                 cost = float(volume) * float(data_cost)
                 print('cost of the element= ' + str(cost))
-    
-    
     return cost
 
 def calculate_lca(element,data):
@@ -65,7 +63,6 @@ def calculate_lca(element,data):
                 print('dataLCA=' + str(data_LCA) + ' , ' + ' volume=' + str(volume) )
                 lca = float(volume) * float(data_LCA)
                 print('lca of the element= ' + str(lca))
-    
     return lca
 
 def calculate_time(element,data):
@@ -85,8 +82,8 @@ def calculate_time(element,data):
                 print('dataTime=' + str(data_time) + ' , ' + ' volume=' + str(volume) )
                 time = float(volume) * float(data_time)
                 print('time of the element= ' + str(time))
-    
     return time
+
 
 ### Calculate renovation results
 
@@ -116,33 +113,34 @@ for elem in elems:
         for prop in post[0]['dynamicProperties']:
             if prop['name'][0:16] == "Global warming B":
                 gwp_sqm += float(prop['value'])
-        price_sqm = float(post[0]['price'])
+        cost_sqm = float(post[0]['price'])
 
         elem['gwp'] = gwp_sqm * elem["area"]
-        elem['price'] = price_sqm * elem["area"]
+        elem['cost'] = cost_sqm * elem["area"]
 
 
 ### calculate new product results:
-data_s= []
+
+new_data= []
 with open('Data\\NewProducts.csv', newline='') as csvfile:
     dataRead = csv.reader(csvfile, delimiter=',')
-    
     for row in dataRead:
         data = {}
         data['name'] = row[0]
         data['cost'] = row[1]
         data['LCA'] = row[2]
         data['time'] = row[3]
-        data_s.append(data) 
+        new_data.append(data)
 
 for elem in elems:
     if elem['is_new']:
         elem['gwp'] = 0
-        elem['price'] = 0
+        elem['cost'] = 0
         for material in elem['materials']:
-            #TODO MARCINS CODE
+            cost_sqm = calculate_cost(elem, new_data)
+            gwp_sqm = calculate_lca(elem, new_data)
             elem['gwp'] += gwp_sqm * material["volume"]
-            elem['price'] = price_sqm * material["volume"]
+            elem['cost'] += cost_sqm * material["volume"]
 
 
 
