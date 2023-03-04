@@ -1,8 +1,8 @@
 [
-    {"name":"Timber", "Cost":0, "Time":0, "GWP_A1-A3":0},
-    {"name":"Steel", "Cost":0, "Time":0, "GWP_A1-A3":0},
-    {"name":"Concrete", "Cost":0, "Time":0, "GWP_A1-A3":0},
-    {"name":"Glass", "Cost":0, "Time":0, "GWP_A1-A3":0},
-    {"name":"Asphalt", "Cost":0, "Time":0, "GWP_A1-A3":0},
-    {"name":"Brick", "Cost":0, "Time":0, "GWP_A1-A3":0}
+    {"name":"SW_Gypsum", "Cost":0, "Time":0, "GWP_A1-A3":123,28},
+    {"name":"SW_CounterBatten_Roof", "Cost":0, "Time":0, "GWP_A1-A3":110},
+    {"name":"SW_Plywood_Roof", "Cost":0, "Time":0, "GWP_A1-A3":-733.8},
+    {"name":"Roofing - Asphalt", "Cost":0, "Time":0, "GWP_A1-A3":618.75},
+    {"name":"SW_Masonry_exterior", "Cost":0, "Time":0, "GWP_A1-A3":138.3},
+    {"name":"SW_WallBatt", "Cost":0, "Time":0, "GWP_A1-A3":70.39}
 ]
