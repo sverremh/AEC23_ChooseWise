@@ -21,66 +21,7 @@ transport = ServerTransport(client=client, stream_id=STREAM_ID)
 speckle_data = operations.receive(commit.referencedObject, transport)
 
 
-speckle_data['@Roofs'][0].materialQuantities[0].volume
-
-speckle_data['@Roofs'][0].materialQuantities[0].material.name
-
-# if hasattr(speckle_data, "@Roof"):
-#     for element in speckle_data[category_name]:
-#         if hasattr(element, 'materialQuantities'):
-#             if element.materialQuantities: # not true for curtain walls as they don't have materials
-#                 for material in element.materialQuantities:
-#                     volume = convert2si(material.volume, material.units, order=3)
-#                     category = material.material.name # possible also .materialCategory
-#                     if category in materials:
-#                         materials[category] += volume
-#                     else:
-#                         materials[category] = volume
-#     materials = {key : round(materials[key], ROUNDING) for key in materials}
-
-pprint(speckle_data['roofs'])
-
-
 def calculate_cost(element):
-    # if hasattr(element, '@Roofs'):
-    #     for roof in speckle_data['@Roofs']:
-    #         # N.b.: this is actual surface area, not flat area
-    #         area = convert2si(roof.parameters.HOST_AREA_COMPUTED.value, roof.parameters.HOST_AREA_COMPUTED.applicationUnit, order=2)
-
-    #         # measure circumference
-    #         circumference = 0
-    #         for line in roof.outline.segments:
-    #             circumference += convert2si(line.length, line.units)
-    #         if circumference > area**(0.5):
-    #             circumferences.append(round(circumference, ROUNDING))
-    #         else:
-    #             circumferences.append(round(area**(0.5), ROUNDING))
-
-    #         # measure height
-    #         try:
-    #             top = convert2si(roof.parameters.ACTUAL_MAX_RIDGE_HEIGHT_PARAM.value, roof.units)
-    #             bottom = convert2si(roof.parameters.ROOF_LEVEL_OFFSET_PARAM.value, roof.units)
-    #             lvl_elev = convert2si(roof.level.elevation, roof.level.units)
-    #             height = top - bottom - lvl_elev
-    #         except AttributeError:
-    #             vertex_heights=[]
-    #             for mesh in roof.displayValue:
-    #                 vertex_heights = vertex_heights + mesh.vertices[3 - 1::3]
-    #             single_height = max(vertex_heights) - min(vertex_heights)
-    #             height = convert2si(single_height, roof.units)
-    #         heights.append(round(height, ROUNDING))
-
-    #         # assess roof type. Alternatively: roof.parameters.ROOF_SLOPE.value
-    #         if height < 0.5:
-    #             types.append("flat")
-    #         else:
-    #             types.append("gable")
-
-    # return areas, circumferences, heights, types
-
-
-
-
     return cost
 
 def calculate_lca(element):
@@ -89,11 +30,27 @@ def calculate_lca(element):
 def calculate_time(element):
     return cost
 
-def send_to_speckle(element, cost, lca, time):
+def send_to_speckle(element):
     pass
 
-for element in input_data:
+
+roofs = []
+for roof in speckle_data['@Roofs']:
+    roof_dict = {}
+    roof_dict['id'] = roof.id
+    roof_dict['materials'] = []
+    for material in roof.materialQuantities:
+        m={}
+        m['name'] = roof.materialQuantities[0].material.name
+        m['volume'] = roof.materialQuantities[0].volume
+        roof_dict['materials'].append(m)
+    roofs.append(roof_dict)
+
+pprint(roofs)
+
+# [{'id': 'f4ffdd94e2b1c226f082a9b90ceb5a44', 'materials': [{'name': 'Default Roof', 'volume': 11.03377918962492}]}]
+for element in roofs:
     cost = calculate_cost(element)
     lca = calculate_lca(element)
     time = calculate_time(element)
-    send_to_speckle(element, cost, lca, time)
+    send_to_speckle(element)
