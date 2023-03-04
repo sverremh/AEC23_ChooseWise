@@ -75,4 +75,4 @@ if __name__ == '__main__':
       
     # write to json with just walls    
     new_path = f'Data\\json_{search_post}.json'
-    write_json(filtered_json, new_path)
+    write_json(post_dict, new_path)
