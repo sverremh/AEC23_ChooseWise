@@ -1,11 +1,6 @@
 import json
 import pandas as pd
 
-#json_walls = map(lambda dict: dict['classification'][5]['text'].contains(search_string), json_list)
-#selected_elems = [a_i for a_i in json_list \
-#     if search_string in a_i['classifications'][5]['text']] # elements in json list matching the search string.
-
-
 def filter_json_by_classification_text(json_lst, search_strings):
     """Get the json posts that matches the descriptions in the search string. 
     input: list of strings or single string. 
@@ -44,10 +39,6 @@ def write_json(list, path):
         json.dump(list, new_data)
 
 
-
-
-
-
 if __name__ == '__main__':
     search_post = '8.2-8.1,01'
     print('Hello world')
@@ -76,3 +67,4 @@ if __name__ == '__main__':
     # write to json with just walls    
     new_path = f'Data\\json_{search_string}.json'
     write_json(post_dict, new_path)
+    
