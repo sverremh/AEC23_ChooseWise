@@ -64,7 +64,7 @@ if __name__ == '__main__':
     print(chapters)
 
 
-    search_string = ['Væg', 'Vindu']
+    search_string = ['Væg']
     filtered_json = filter_json_by_classification_text(json_list, search_strings = search_string)
     # change name to find string
     if isinstance(search_string, list):
@@ -74,5 +74,5 @@ if __name__ == '__main__':
     post_dict = get_post_by_code('Data\\json_VægVindu.json', search_post)
       
     # write to json with just walls    
-    new_path = f'Data\\json_{search_post}.json'
+    new_path = f'Data\\json_{search_string}.json'
     write_json(post_dict, new_path)
