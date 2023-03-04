@@ -9,7 +9,7 @@ import pandas as pd
 import json
 
 
-MOLIO_JSON = r"./Data/RandomPriceRenBD.json"
+MOLIO_JSON = r"./Data/els_with_epd_vals_appended.json"
 NEW_JSON = r"./Data/New_products.json"
 
 # create and authenticate a client
@@ -20,7 +20,7 @@ client.authenticate_with_account(account)
 # Get a commit by its ID
 STREAM_ID = "9e730f9975"
 # COMMIT_ID = "c6384a23fd"    # Revit Renovation
-COMMIT_ID = "c1a5d145bd"    # Revit New
+COMMIT_ID = "4e154c8a6b"    # Revit New
 
 
 # get the specified commit data
@@ -49,7 +49,7 @@ for elem in speckle_data['@Walls']:
         "id": elem.id,
         "area": elem.parameters.HOST_AREA_COMPUTED.value,
         "code": elem.parameters.PricebookCode.value,
-        "is_new": elem.parameters.IsNew.value,
+        # "is_new": elem.parameters.IsNew.value,
         "phase": elem.parameters.Phase.value,
         "materials": materials,
         })
@@ -57,7 +57,7 @@ for elem in speckle_data['@Walls']:
 
 # For that pricebook number, find price and GWP
 for elem in elems:
-    if not elem['is_new']:
+    if elem['phase'] == "ForRenovation" or elem['phase'] == "Demolished":
 
         post = get_post_by_code(MOLIO_JSON, elem["code"])
         gwp_sqm = 0
@@ -65,10 +65,11 @@ for elem in elems:
             if prop['name'][0:16] == "Global warming B":
                 gwp_sqm += float(prop['value'])
         cost_sqm = float(post[0]['price'])
+        time_sqm = float(post[0]['time'])
 
         elem['gwp'] = gwp_sqm * elem["area"]
         elem['cost'] = cost_sqm * elem["area"]
-
+        elem['time'] = time_sqm * elem["area"]
 
 ### calculate new product results:
 
@@ -77,7 +78,7 @@ with open(NEW_JSON, 'r', encoding='utf-8') as file:
 
 
 for elem in elems:
-    if elem['is_new']:
+    if elem['phase'] == "New":
         elem['gwp'] = 0
         elem['cost'] = 0
         elem['time'] = 0

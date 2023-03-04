@@ -12,12 +12,14 @@ client = SpeckleClient(host='https://speckle.xyz')
 account = get_default_account()
 client.authenticate_with_account(account)
 
+STREAM_ID="9e730f9975"
+OBJ_ID = "6bf18ee3a41ce18d8936e92f26130d4e"
+
 # Create a server transport for sending/receiving objects.
-transport = ServerTransport(client=client, stream_id="9e730f9975")
+transport = ServerTransport(client=client, stream_id=STREAM_ID)
 
 # Receive an object from the stream.
-obj_id = "8367572ff745edfc9e82f7025208db21"
-received_base = operations.receive(obj_id=obj_id, remote_transport=transport)
+received_base = operations.receive(obj_id=OBJ_ID, remote_transport=transport)
 welems = []
 
 # Print some information about the received object.
@@ -31,13 +33,15 @@ for wall in received_base["@Walls"]:
 for elem in welems:
     elem.units = "m"
     params = elem.parameters
-    params["typeWall"] = "polishWall"
+    params["gwp"] = "NEWGWP!"
+    params["cost"] = "NEWCOST!"
+    params["time"] = "NEWTIME!"
     print(params)
 
 # Create a new Base object and send it to the stream.
-stream_id = "9a259f0211"
-branch_name = "test1"
-base = Base(name="test", values=welems)
+stream_id = "9e730f9975"
+branch_name = "svhs/branch_1"
+base = Base(name="Test123", values=welems)
 
 # Create a new transport for sending objects to the stream.
 transport = ServerTransport(client=client, stream_id=stream_id)
