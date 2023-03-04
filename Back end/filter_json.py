@@ -6,7 +6,7 @@ import pandas as pd
 #     if search_string in a_i['classifications'][5]['text']] # elements in json list matching the search string.
 
 
-def filter_json_by_classification_text(json_lst, search_strings):
+def filter_json_by_classification_text(json_list, search_strings):
     """Get the json posts that matches the descriptions in the search string. 
     input: list of strings or single string. 
     returns: filtered list of dictionaries"""
@@ -21,7 +21,7 @@ def filter_json_by_classification_text(json_lst, search_strings):
         return match
 
     # test if string og list of string
-    if isinstance(search_string, str): 
+    if isinstance(search_strings, str): 
         search_strings = [search_strings] # convert single string to list
 
     selected_elems = [a_i for a_i in json_list \
