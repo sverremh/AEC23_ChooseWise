@@ -1,12 +1,7 @@
 import json
 import pandas as pd
 
-#json_walls = map(lambda dict: dict['classification'][5]['text'].contains(search_string), json_list)
-#selected_elems = [a_i for a_i in json_list \
-#     if search_string in a_i['classifications'][5]['text']] # elements in json list matching the search string.
-
-
-def filter_json_by_classification_text(json_list, search_strings):
+def filter_json_by_classification_text(json_lst, search_strings):
     """Get the json posts that matches the descriptions in the search string. 
     input: list of strings or single string. 
     returns: filtered list of dictionaries"""
@@ -43,16 +38,32 @@ def write_json(list, path):
     with open(path, "w") as new_data:
         json.dump(list, new_data)
 
-
-
-
+def filter_by_edp_values(json_path):
+    """Get only posts from handbook with epd-numbers"""
+    def find_non_empty_vals(dict_lst, key):
+        match = False
+        for d in dict_lst:
+            if len(d[key]) > 0:
+                match = True
+                break
+        return match
+    # get json as list of dicts
+    with open(json_path, 'r', encoding='utf-8') as file:
+        json_lst = json.load(file)
+    
+    #iterate through list of posts
+    non_empty_epd = [el for el in json_lst if find_non_empty_vals(el['dynamicProperties'][3:9], 'value')]
+    
+    # write non-empty epds to 
+    write_json(non_empty_epd, 'Data\\els_with_epd_vals.json')
+    pass
 
 
 if __name__ == '__main__':
     search_post = '8.2-8.1,01'
-    print('Hello world')
-
     # open the json
+    
+    """
     with open('Data\\RandomPriceRenBD.json', mode="r", encoding="utf-8") as file:
         json_list = json.load(file) # list of nested dictionaries. One for each roof post
 
@@ -64,7 +75,7 @@ if __name__ == '__main__':
     print(chapters)
 
 
-    search_string = ['Væg', 'Vindu']
+    search_string = ['Væg']
     filtered_json = filter_json_by_classification_text(json_list, search_strings = search_string)
     # change name to find string
     if isinstance(search_string, list):
@@ -74,5 +85,9 @@ if __name__ == '__main__':
     post_dict = get_post_by_code('Data\\json_VægVindu.json', search_post)
       
     # write to json with just walls    
-    new_path = f'Data\\json_{search_post}.json'
-    write_json(post_dict, new_path)
+    new_path = f'Data\\json_{search_string}.json'
+    write_json(filtered_json, new_path)
+    """
+    epd_posts = filter_by_edp_values('Data\\RandomPriceRenBD.json')
+
+    
