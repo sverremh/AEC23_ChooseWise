@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from Back end.speckle import get_data_from_speckle
+from speckle import get_data_from_speckle
 from fastapi import FastAPI
 from specklepy.api.wrapper import StreamWrapper
 from specklepy.api import operations
