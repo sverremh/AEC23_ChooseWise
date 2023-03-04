@@ -38,12 +38,32 @@ def write_json(list, path):
     with open(path, "w") as new_data:
         json.dump(list, new_data)
 
+def filter_by_edp_values(json_path):
+    """Get only posts from handbook with epd-numbers"""
+    def find_non_empty_vals(dict_lst, key):
+        match = False
+        for d in dict_lst:
+            if len(d[key]) > 0:
+                match = True
+                break
+        return match
+    # get json as list of dicts
+    with open(json_path, 'r', encoding='utf-8') as file:
+        json_lst = json.load(file)
+    
+    #iterate through list of posts
+    non_empty_epd = [el for el in json_lst if find_non_empty_vals(el['dynamicProperties'][3:9], 'value')]
+    
+    # write non-empty epds to 
+    write_json(non_empty_epd, 'Data\\els_with_epd_vals.json')
+    pass
+
 
 if __name__ == '__main__':
     search_post = '8.2-8.1,01'
-    print('Hello world')
-
     # open the json
+    
+    """
     with open('Data\\RandomPriceRenBD.json', mode="r", encoding="utf-8") as file:
         json_list = json.load(file) # list of nested dictionaries. One for each roof post
 
@@ -66,5 +86,8 @@ if __name__ == '__main__':
       
     # write to json with just walls    
     new_path = f'Data\\json_{search_string}.json'
-    write_json(post_dict, new_path)
+    write_json(filtered_json, new_path)
+    """
+    epd_posts = filter_by_edp_values('Data\\RandomPriceRenBD.json')
+
     
