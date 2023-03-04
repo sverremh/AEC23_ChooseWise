@@ -20,7 +20,7 @@ client.authenticate_with_account(account)
 # Get a commit by its ID
 STREAM_ID = "9e730f9975"
 # COMMIT_ID = "c6384a23fd"    # Revit Renovation
-COMMIT_ID = "8398cad58a"    # Revit New
+COMMIT_ID = "c1a5d145bd"    # Revit New
 
 
 # get the specified commit data
@@ -37,6 +37,8 @@ elems = []
 # TODO walls, Roofs, Windows
 # TODO New, ForRenovation, Demolished, and ignore blanks
 for elem in speckle_data['@Walls']:
+# for elem in speckle_data['@Roofs']:
+# for elem in speckle_data['@Windows']:
     materials = []
     for material in elem.materialQuantities:
         m={}
@@ -46,10 +48,12 @@ for elem in speckle_data['@Walls']:
     elems.append({
         "id": elem.id,
         "area": elem.parameters.HOST_AREA_COMPUTED.value,
-        "code": elem.parameters.pricebook_number.value,
+        "code": elem.parameters.PricebookCode.value,
         "is_new": elem.parameters.IsNew.value,
+        "phase": elem.parameters.Phase.value,
         "materials": materials,
         })
+    pass
 
 # For that pricebook number, find price and GWP
 for elem in elems:
