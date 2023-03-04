@@ -1,8 +1,8 @@
 [
-    {"name":"SW_Gypsum", "Cost":0, "Time":0, "GWP_A1-A3":123,28},
-    {"name":"SW_CounterBatten_Roof", "Cost":0, "Time":0, "GWP_A1-A3":110},
-    {"name":"SW_Plywood_Roof", "Cost":0, "Time":0, "GWP_A1-A3":-733.8},
-    {"name":"Roofing - Asphalt", "Cost":0, "Time":0, "GWP_A1-A3":618.75},
-    {"name":"SW_Masonry_exterior", "Cost":0, "Time":0, "GWP_A1-A3":138.3},
-    {"name":"SW_WallBatt", "Cost":0, "Time":0, "GWP_A1-A3":70.39}
+    {"name":"SW_Gypsum", "Cost":68435, "Time":13.3, "GWP_A1-A3":123.28},
+    {"name":"SW_CounterBatten_Roof", "Cost":21842, "Time":4.2, "GWP_A1-A3":110},
+    {"name":"SW_Plywood_Roof", "Cost":40193, "Time":7.1, "GWP_A1-A3":-733.8},
+    {"name":"Roofing - Asphalt", "Cost":224928, "Time":24.2, "GWP_A1-A3":618.75},
+    {"name":"SW_Masonry_exterior", "Cost":128432, "Time":17.8, "GWP_A1-A3":138.3},
+    {"name":"SW_WallBatt", "Cost":10321, "Time":0.9, "GWP_A1-A3":70.39}
 ]
