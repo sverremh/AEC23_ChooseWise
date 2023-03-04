@@ -13,8 +13,10 @@ account = get_default_account()
 client.authenticate_with_account(account)
 
 # Get a commit by its ID
-STREAM_ID = "9e730f9975"    #  Revit
-COMMIT_ID = "253cb3de39"
+STREAM_ID = "9e730f9975"
+COMMIT_ID = "c6384a23fd"    # Revit Renovation
+# COMMIT_ID = "a693fd7939"    # Revit New
+
 
 # get the specified commit data
 commit = client.commit.get(STREAM_ID, COMMIT_ID)
@@ -38,34 +40,35 @@ for elem in speckle_data['@Walls']:
         "id": elem.id,
         "area": elem.parameters.HOST_AREA_COMPUTED.value,
         "code": elem.parameters.pricebook_number.value,
+        "is_new": elem.parameters.IsNew.value,
         "materials": materials,
         })
 
 
 # For that pricebook number, find price and GWP
 for elem in elems:
-    post = get_post_by_code(r"./Data/RandomPriceRenBD.json", elem["code"])
-    gwp_sqm = 0
-    for prop in post[0]['dynamicProperties']:
-        if prop['name'][0:16] == "Global warming B":
-            gwp_sqm += float(prop['value'])
-    price_sqm = float(post[0]['price'])
+    if not elem['is_new']:
+        post = get_post_by_code(r"./Data/RandomPriceRenBD.json", elem["code"])
+        gwp_sqm = 0
+        for prop in post[0]['dynamicProperties']:
+            if prop['name'][0:16] == "Global warming B":
+                gwp_sqm += float(prop['value'])
+        price_sqm = float(post[0]['price'])
 
-    elem['renovation_gwp'] = gwp_sqm * elem["area"]
-    elem['renovation_price'] = price_sqm * elem["area"]
+        elem['gwp'] = gwp_sqm * elem["area"]
+        elem['price'] = price_sqm * elem["area"]
 
 
 ### calculate new product results:
 
 for elem in elems:
-    elem['new_gwp'] = 0
-    elem['new_price'] = 0
-    
-    for material in elem['materials']:
-        #TODO MARCINS CODE
-
-        elem['new_gwp'] += gwp_sqm * material["volume"]
-        elem['new_price'] = price_sqm * material["volume"]
+    if elem['is_new']:
+        elem['gwp'] = 0
+        elem['price'] = 0
+        for material in elem['materials']:
+            #TODO MARCINS CODE
+            elem['gwp'] += gwp_sqm * material["volume"]
+            elem['price'] = price_sqm * material["volume"]
 
 
 
