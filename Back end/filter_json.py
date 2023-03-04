@@ -56,7 +56,7 @@ def filter_by_edp_values(json_path):
     
     # write non-empty epds to 
     write_json(non_empty_epd, 'Data\\els_with_epd_vals.json')
-    pass
+
 
 
 if __name__ == '__main__':
