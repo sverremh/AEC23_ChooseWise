@@ -23,6 +23,69 @@ transport = ServerTransport(client=client, stream_id=STREAM_ID)
 speckle_data = operations.receive(commit.referencedObject, transport)
 
 
+###definitions for volume
+
+def calculate_cost(element,data):
+    cost =0
+    volume = 0
+    for em in element['materials']:
+        e_name = em['name']
+        for d in data:
+            data_name = d['name']
+            #print(data_name)
+            #print(e_name)
+            #find the same names of material
+            if (e_name == data_name):
+                volume = em['volume']
+                #calculate the cost
+                data_cost = d['cost']
+                print('dataCost=' + str(data_cost) + ' , ' + ' volume=' + str(volume) )
+                cost = float(volume) * float(data_cost)
+                print('cost of the element= ' + str(cost))
+    
+    
+    return cost
+
+def calculate_lca(element,data):
+    lca =0
+    volume = 0
+    for em in element['materials']:
+        e_name = em['name']
+        for d in data:
+            data_name = d['name']
+            #print(data_name)
+            #print(e_name)
+            #find the same names of material
+            if (e_name == data_name):
+                volume = em['volume']
+                #calculate the cost
+                data_LCA = d['LCA']
+                print('dataLCA=' + str(data_LCA) + ' , ' + ' volume=' + str(volume) )
+                lca = float(volume) * float(data_LCA)
+                print('lca of the element= ' + str(lca))
+    
+    return lca
+
+def calculate_time(element,data):
+    time =0
+    volume = 0
+    for em in element['materials']:
+        e_name = em['name']
+        for d in data:
+            data_name = d['name']
+            #print(data_name)
+            #print(e_name)
+            #find the same names of material
+            if (e_name == data_name):
+                volume = em['volume']
+                #calculate the cost
+                data_time = d['time']
+                print('dataTime=' + str(data_time) + ' , ' + ' volume=' + str(volume) )
+                time = float(volume) * float(data_time)
+                print('time of the element= ' + str(time))
+    
+    return time
+
 ### Calculate renovation results
 
 # Find all walls and list their pricebook numbers
@@ -56,6 +119,17 @@ for elem in elems:
 
 
 ### calculate new product results:
+data_s= []
+with open('Data\\NewProducts.csv', newline='') as csvfile:
+    dataRead = csv.reader(csvfile, delimiter=',')
+    
+    for row in dataRead:
+        data = {}
+        data['name'] = row[0]
+        data['cost'] = row[1]
+        data['LCA'] = row[2]
+        data['time'] = row[3]
+        data_s.append(data) 
 
 for elem in elems:
     elem['new_gwp'] = 0
@@ -63,6 +137,12 @@ for elem in elems:
     
     for material in elem['materials']:
         #TODO MARCINS CODE
+        
+        cost = calculate_cost(elem,data_s)
+        lca = calculate_lca(elem,data_s)
+        time = calculate_time(elem,data_s)
+
+        print('cost=' + str(cost) + ' ; ' + 'lca=' + str(lca) + ' ; ' + 'time=' + str(time) )
 
         elem['new_gwp'] += gwp_sqm * material["volume"]
         elem['new_price'] = price_sqm * material["volume"]
