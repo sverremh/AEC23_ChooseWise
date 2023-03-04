@@ -4,6 +4,7 @@ from specklepy.api.credentials import get_default_account
 from specklepy.transports.server import ServerTransport
 from pprint import pprint
 import csv
+import numpy
 
 # create and authenticate a client
 client = SpeckleClient(host="https://speckle.xyz/")
@@ -23,20 +24,64 @@ speckle_data = operations.receive(commit.referencedObject, transport)
 
 def calculate_cost(element,data):
     cost =0
-    print(element)
-
-    print(data)
-            #if (row[0] == m.material.name):
-            #    cost = roof.materialQuantities[0].volume * row[1]
+    volume = 0
+    for em in element['materials']:
+        e_name = em['name']
+        for d in data:
+            data_name = d['name']
+            #print(data_name)
+            #print(e_name)
+            #find the same names of material
+            if (e_name == data_name):
+                volume = em['volume']
+                #calculate the cost
+                data_cost = d['cost']
+                print('dataCost=' + str(data_cost) + ' , ' + ' volume=' + str(volume) )
+                cost = float(volume) * float(data_cost)
+                print('cost of the element= ' + str(cost))
+    
+    
     return cost
 
-def calculate_lca(element):
-    cost =1
-    return cost
+def calculate_lca(element,data):
+    lca =0
+    volume = 0
+    for em in element['materials']:
+        e_name = em['name']
+        for d in data:
+            data_name = d['name']
+            #print(data_name)
+            #print(e_name)
+            #find the same names of material
+            if (e_name == data_name):
+                volume = em['volume']
+                #calculate the cost
+                data_LCA = d['LCA']
+                print('dataLCA=' + str(data_LCA) + ' , ' + ' volume=' + str(volume) )
+                lca = float(volume) * float(data_LCA)
+                print('lca of the element= ' + str(lca))
+    
+    return lca
 
-def calculate_time(element):
-    cost =1
-    return cost
+def calculate_time(element,data):
+    time =0
+    volume = 0
+    for em in element['materials']:
+        e_name = em['name']
+        for d in data:
+            data_name = d['name']
+            #print(data_name)
+            #print(e_name)
+            #find the same names of material
+            if (e_name == data_name):
+                volume = em['volume']
+                #calculate the cost
+                data_time = d['time']
+                print('dataTime=' + str(data_time) + ' , ' + ' volume=' + str(volume) )
+                time = float(volume) * float(data_time)
+                print('time of the element= ' + str(time))
+    
+    return time
 
 def send_to_speckle(element):
     pass
@@ -59,19 +104,25 @@ for roof in speckle_data['@Roofs']:
 # [{'id': 'f4ffdd94e2b1c226f082a9b90ceb5a44', 'materials': [{'name': 'Default Roof', 'volume': 11.03377918962492}]}]
 
 data_s= []
+
+
 with open('Data\\NewProducts.csv', newline='') as csvfile:
     dataRead = csv.reader(csvfile, delimiter=',')
-    data = {}
+    
     for row in dataRead:
+        data = {}
         data['name'] = row[0]
         data['cost'] = row[1]
         data['LCA'] = row[2]
         data['time'] = row[3]
-    data_s.append(data)
+        data_s.append(data) 
+
+print(data_s)
 
 for element in roofs:
     cost = calculate_cost(element,data_s)
-    lca = calculate_lca(element)
-    time = calculate_time(element)
+    lca = calculate_lca(element,data_s)
+    time = calculate_time(element,data_s)
+    #print('cost=' + cost + ' ; ' + 'lca=' + lca + ' ; ' + 'time=' + time)
 
 send_to_speckle(element)
