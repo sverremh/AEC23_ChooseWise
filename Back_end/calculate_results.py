@@ -108,7 +108,11 @@ def calculate_new_construction(elem):
                 elem.parameters['GWP'] += gwp_sqm * material.volume
                 elem.parameters['Time'] += time_sqm * material.volume
             except IndexError:
-                print(f"no such material as {material['name']} in the New Product database.")
+                if hasattr(material, 'name'):
+                    print(f"no such material as {material['name']} in the New Product database.")
+                else:
+                    material['name'] = 'Unknown material'
+                    print(f"no such material as {material['name']} in the New Product database.")
     return elem
 
 
@@ -132,9 +136,52 @@ def send_back_to_speckle(data):
 if __name__ == '__main__':
     # Mocked IDs, ideally this could be replaced by webhook triggering event
     STREAM_ID="9e730f9975"
+
+    # Option A
     BRANCH_NAME = "svhs/branch_1"
-    COMMIT_ID = "4e154c8a6b" 
-    # OBJ_ID = "6bf18ee3a41ce18d8936e92f26130d4e"
+    COMMIT_ID = "43a8aad434"
+
+    speckle_data = fetch_speckle(STREAM_ID, COMMIT_ID)
+
+    # TODO speckle_data['@Windows']:
+    # TODO handle IFC data structure from Speckle as well
+    for elem in speckle_data['@Walls']:
+        elem = add_result_parameters(elem)
+        elem = calculate_renovation(elem)
+        elem = calculate_new_construction(elem)
+        # pprint(elem.parameters.__dict__)
+    for elem in speckle_data['@Roofs']:
+        elem = add_result_parameters(elem)
+        elem = calculate_renovation(elem)
+        elem = calculate_new_construction(elem)
+        # pprint(elem.parameters.__dict__)
+
+    send_back_to_speckle(speckle_data)
+
+    # Option B
+    BRANCH_NAME = "svhs/branch_2"
+    COMMIT_ID = "a6acc52d22"
+
+    speckle_data = fetch_speckle(STREAM_ID, COMMIT_ID)
+
+    # TODO speckle_data['@Windows']:
+    # TODO handle IFC data structure from Speckle as well
+    for elem in speckle_data['@Walls']:
+        elem = add_result_parameters(elem)
+        elem = calculate_renovation(elem)
+        elem = calculate_new_construction(elem)
+        # pprint(elem.parameters.__dict__)
+    for elem in speckle_data['@Roofs']:
+        elem = add_result_parameters(elem)
+        elem = calculate_renovation(elem)
+        elem = calculate_new_construction(elem)
+        # pprint(elem.parameters.__dict__)
+
+    send_back_to_speckle(speckle_data)
+
+    # Option C
+    BRANCH_NAME = "svhs/branch_3"
+    COMMIT_ID = "22b20f3789"
 
     speckle_data = fetch_speckle(STREAM_ID, COMMIT_ID)
 
