@@ -12,18 +12,19 @@ import json
 
 
 # Input databases
-MOLIO_JSON = r"./Data/els_with_epd_vals_appended.json"
+MOLIO_JSON = r"./Data/els_with_epd_vals_appended.json" #Path to condensed Molio DB
 
-#MOLIO_JSON = r"./Data/RandomPriceRenBD.json" #Path for 
-
-NEW_JSON = r"./Data/New_products.json"
+NEW_JSON = r"./Data/New_products.json" # Path to DB of new products
 
 # Read the input data files
-file = open(NEW_JSON, 'r', encoding='utf-8')
-new_data = json.load(file)
+with open(NEW_JSON, 'r', encoding='utf-8') as new_db_file:
+    new_data = json.load(new_db_file)
+#file = open(NEW_JSON, 'r', encoding='utf-8')
 
-file = open(MOLIO_JSON, 'r', encoding='utf-8')
-process_data = json.load(file)
+with open(MOLIO_JSON, 'r', encoding='utf-8') as old_db_file: 
+    process_data = json.load(old_db_file)
+#file = open(MOLIO_JSON, 'r', encoding='utf-8')
+
 
 # Authenticate Speckle
 client = SpeckleClient(host="https://speckle.xyz/")
@@ -32,6 +33,21 @@ client.authenticate_with_account(account)
 
 
 def fetch_speckle(STREAM_ID, COMMIT_ID):
+    """
+    Fetches a speckle stream and returns the date
+
+    Parameters
+    ----------
+    STREAM_ID : string
+        STREAM_ID for the speckle string.
+    COMMIT_ID : string
+        ID of the specific commit to fetch
+
+    Returns
+    -------
+    List
+        all data from the speckle commit
+    """
     # get the specified commit data
     commit = client.commit.get(STREAM_ID, COMMIT_ID)
     # create an authenticated server transport from the client and receive the commit obj
@@ -41,6 +57,20 @@ def fetch_speckle(STREAM_ID, COMMIT_ID):
 
 
 def calculate_renovation(elem):
+    """
+    Calculates LCA, Cost, and time of a speckle element 
+    and appends information to the speckle element. 
+
+    Parameters
+    ----------
+    elem : Speckle Element
+        The element to calculate the renovation cost of.
+
+    Returns
+    -------
+    Speckle element
+        The speckle element with relevant information.
+    """
     # For that pricebook number, find price and GWP
     if elem.parameters['Phase'].value == "ForRenovation" or elem.parameters['Phase'].value == "Demolished":
         post = [el for el in process_data if el['number'] == elem.parameters.PricebookCode.value]
@@ -74,7 +104,7 @@ def calculate_new_construction(elem):
                 elem.parameters['Time'] += time_sqm * material.volume
             except IndexError:
                 print(f"no such material as {material['name']} in the New Product database.")
-        return elem
+    return elem
 
 
 def send_back_to_speckle(data):
