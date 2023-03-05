@@ -1,9 +1,24 @@
 import json
-import pandas as pd
-
 
 def append_time_to_post(path, post_numbers, times):
-    """Add key for time spent on operation."""
+    """
+    Append time key to the json posts in the "Håndbok" for renovation of building parts.
+
+    Parameters
+    ----------
+    path : string
+        Path to the JSON file holding the renovation DB
+    
+    post_numbers: str or list[string]
+        id of the posts in the handbook that time should be appended to
+
+    time: float or list[float]
+        Time in hrs for the post. Should be same length as 'post_numbers'
+    Returns
+    -------
+    None
+        
+    """
     with open(path, 'r', encoding='utf-8') as file:
         data = json.load(file)
     
@@ -27,6 +42,40 @@ def append_time_to_post(path, post_numbers, times):
 
 
 def append_post_to_json(path, name, number, description, price, b3, b4, c4 = 0):
+    """
+    Appends a dummy post to JSON to compensate for lacking information in original database. 
+
+    Parameters
+    ----------
+    path : str
+        Path to the JSON to modify
+    
+    name : str
+        Name of the post to add
+    
+    number : str
+        "Book chapter" in the renovation book
+    
+    description : str
+        Description of the operations
+    
+    price : float
+        Price of the operation per m^2
+
+    b3 : float
+        EPD value for B3 post
+
+    b4 : float
+        EPD value for B4 post
+
+    c4 : float
+        EPD value for C4 post
+
+    Returns
+    -------
+    None
+        
+    """
     with open(path, 'r', encoding='utf-8') as file:
         data = json.load(file)
 
@@ -271,9 +320,27 @@ def append_post_to_json(path, name, number, description, price, b3, b4, c4 = 0):
         json.dump(data, file)
             
 def filter_json_by_classification_text(json_lst, search_strings):
-    """Get the json posts that matches the descriptions in the search string. 
-    input: list of strings or single string. 
-    returns: filtered list of dictionaries"""
+    """
+    Get the json posts that matches the descriptions in the search string. 
+
+    returns: filtered list of dictionaries
+    
+    Parameters
+    ----------
+    json_lst : list[dict]
+        List representation of JSON element to search through
+    
+    search_strings: str or list[string]
+        Keywords to search for in the json list
+
+    
+    Returns
+    -------
+    selected_elems: list[dict]
+        JSON elements that matches the search query.
+        
+    """
+    
 
     def test_string_containment(el, str_lst):
         """Check if the string matches any part of the search string"""

@@ -77,7 +77,7 @@ def calculate_renovation(elem):
     Returns
     -------
     Speckle element
-        The speckle element with relevant information.
+        The speckle element with relevant information added.
     """
     # For that pricebook number, find price and GWP
     if elem.parameters['Phase'].value == "ForRenovation" or elem.parameters['Phase'].value == "Demolished":
@@ -96,6 +96,20 @@ def calculate_renovation(elem):
     
 
 def calculate_new_construction(elem):
+    """
+    Calculates LCA, Cost, and time of a new speckle element 
+    and appends information to the speckle element. 
+
+    Parameters
+    ----------
+    elem : Speckle Element
+        The element to calculate the renovation cost of.
+
+    Returns
+    -------
+    Speckle element
+        The speckle element with relevant information added.
+    """
     # Takes volumes of materials and multiplies by data from EPD/pricebook
     if elem.parameters['Phase'].value == "New":
         for material in elem.materialQuantities:
@@ -117,6 +131,18 @@ def calculate_new_construction(elem):
 
 
 def send_back_to_speckle(data):
+    """
+    Commits the data back to the speckle stream. 
+
+    Parameters
+    ----------
+    data : Speckle Data
+        All speckle data to send back.
+
+    Returns
+    -------
+        prints information about the results
+    """
     # Create a new Base object and send it to the stream.
     base = Base(name="Test123", values=data)
     # Create a new transport for sending objects to the stream.
