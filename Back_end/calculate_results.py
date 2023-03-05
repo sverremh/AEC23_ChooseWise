@@ -104,9 +104,9 @@ def calculate_new_construction(elem):
                 cost_sqm = material_data['Cost']
                 gwp_sqm = material_data['GWP_A1-A3']
                 time_sqm = material_data['Time']
-                elem.parameters['Cost'] += cost_sqm * material.volume
-                elem.parameters['GWP'] += gwp_sqm * material.volume
-                elem.parameters['Time'] += time_sqm * material.volume
+                elem.parameters['Cost'] += cost_sqm * material.volume / 1000000000
+                elem.parameters['GWP'] += gwp_sqm * material.volume / 1000000000
+                elem.parameters['Time'] += time_sqm * material.volume / 1000000000
             except IndexError:
                 if hasattr(material, 'name'):
                     print(f"no such material as {material['name']} in the New Product database.")
