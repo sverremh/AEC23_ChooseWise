@@ -2,6 +2,8 @@ from specklepy.api import operations
 from specklepy.api.client import SpeckleClient
 from specklepy.api.credentials import get_default_account
 from specklepy.transports.server import ServerTransport
+from specklepy.objects import Base
+
 from pprint import pprint
 from filter_json import filter_json_by_classification_text, get_post_by_code
 import csv
@@ -9,90 +11,104 @@ import pandas as pd
 import json
 
 
+# Input databases
 MOLIO_JSON = r"./Data/els_with_epd_vals_appended.json"
 NEW_JSON = r"./Data/New_products.json"
 
-# create and authenticate a client
+# Read the input data files
+file = open(NEW_JSON, 'r', encoding='utf-8')
+new_data = json.load(file)
+
+file = open(MOLIO_JSON, 'r', encoding='utf-8')
+process_data = json.load(file)
+
+# Authenticate Speckle
 client = SpeckleClient(host="https://speckle.xyz/")
 account = get_default_account()
 client.authenticate_with_account(account)
 
-# Get a commit by its ID
-STREAM_ID = "9e730f9975"
-# COMMIT_ID = "c6384a23fd"    # Revit Renovation
-COMMIT_ID = "4e154c8a6b"    # Revit New
+
+def fetch_speckle(STREAM_ID, COMMIT_ID):
+    # get the specified commit data
+    commit = client.commit.get(STREAM_ID, COMMIT_ID)
+    # create an authenticated server transport from the client and receive the commit obj
+    transport = ServerTransport(client=client, stream_id=STREAM_ID)
+    speckle_data = operations.receive(commit.referencedObject, transport)
+    return speckle_data
 
 
-# get the specified commit data
-commit = client.commit.get(STREAM_ID, COMMIT_ID)
-# create an authenticated server transport from the client and receive the commit obj
-transport = ServerTransport(client=client, stream_id=STREAM_ID)
-speckle_data = operations.receive(commit.referencedObject, transport)
-
-
-### Calculate renovation results
-
-# Find all walls and list their pricebook numbers
-elems = []
-# TODO walls, Roofs, Windows
-# TODO New, ForRenovation, Demolished, and ignore blanks
-for elem in speckle_data['@Walls']:
-# for elem in speckle_data['@Roofs']:
-# for elem in speckle_data['@Windows']:
-    materials = []
-    for material in elem.materialQuantities:
-        m={}
-        m['name'] = material.material.name
-        m['volume'] = material.volume
-        materials.append(m)
-    elems.append({
-        "id": elem.id,
-        "area": elem.parameters.HOST_AREA_COMPUTED.value,
-        "code": elem.parameters.PricebookCode.value,
-        # "is_new": elem.parameters.IsNew.value,
-        "phase": elem.parameters.Phase.value,
-        "materials": materials,
-        })
-    pass
-
-# For that pricebook number, find price and GWP
-for elem in elems:
-    if elem['phase'] == "ForRenovation" or elem['phase'] == "Demolished":
-
-        post = get_post_by_code(MOLIO_JSON, elem["code"])
+def calculate_renovation(elem):
+    # For that pricebook number, find price and GWP
+    if elem.parameters['Phase'] == "ForRenovation" or elem.parameters['Phase'] == "Demolished":
+        post = [el for el in process_data if el['number'] == elem.parameters.PricebookCode.value]
         gwp_sqm = 0
         for prop in post[0]['dynamicProperties']:
             if prop['name'][0:16] == "Global warming B":
                 gwp_sqm += float(prop['value'])
         cost_sqm = float(post[0]['price'])
         time_sqm = float(post[0]['time'])
+        
+        elem.parameters['GWP'] = gwp_sqm * elem.parameters.HOST_AREA_COMPUTED.value
+        elem.parameters['Cost'] = cost_sqm * elem.parameters.HOST_AREA_COMPUTED.value
+        elem.parameters['Time'] = time_sqm * elem.parameters.HOST_AREA_COMPUTED.value
+    return elem
+    
 
-        elem['gwp'] = gwp_sqm * elem["area"]
-        elem['cost'] = cost_sqm * elem["area"]
-        elem['time'] = time_sqm * elem["area"]
-
-### calculate new product results:
-
-with open(NEW_JSON, 'r', encoding='utf-8') as file:
-    new_data = json.load(file)
-
-
-for elem in elems:
-    if elem['phase'] == "New":
-        elem['gwp'] = 0
-        elem['cost'] = 0
-        elem['time'] = 0
-        for material in elem['materials']:
+def calculate_new_construction(elem):
+    # Takes volumes of materials and multiplies by data from EPD/pricebook
+    if elem.parameters['Phase'] == "New":
+        elem.parameters['GWP'] = 0
+        elem.parameters['Cost'] = 0
+        elem.parameters['Time'] = 0
+        for material in elem.materialQuantities:
             try:
-                material_data = [el for el in new_data if el['name'] == material['name']][0]
+                material_data = [el for el in new_data if el['name'] == material.material.name][0]
                 cost_sqm = material_data['Cost']
                 gwp_sqm = material_data['GWP_A1-A3']
                 time_sqm = material_data['Time']
-                elem['cost'] += cost_sqm * material["volume"]
-                elem['gwp'] += gwp_sqm * material["volume"]
-                elem['time'] += time_sqm * material["volume"]
+                elem.parameters['Cost'] += cost_sqm * material.volume
+                elem.parameters['GWP'] += gwp_sqm * material.volume
+                elem.parameters['Time'] += time_sqm * material.volume
             except IndexError:
                 print(f"no such material as {material['name']} in the New Product database.")
+        return elem
 
-pprint(elems)
 
+def send_back_to_speckle(data):
+    # Create a new Base object and send it to the stream.
+    base = Base(name="Test123", values=data)
+    # Create a new transport for sending objects to the stream.
+    transport = ServerTransport(client=client, stream_id=STREAM_ID)
+    # Send the new Base object to the stream.
+    hash = operations.send(base=base, transports=[transport])
+    # Create a new commit on the stream with the new object.
+    commit_id = client.commit.create(
+        stream_id=STREAM_ID,
+        branch_name=BRANCH_NAME,
+        object_id=hash,
+        message="Test upload from Python"
+    )
+    print(f"Sent {data.totalChildrenCount} elements to stream {STREAM_ID} with commit {commit_id}")
+
+
+if __name__ == '__main__':
+    # Mocked IDs, ideally this could be replaced by webhook triggering event
+    STREAM_ID="9e730f9975"
+    BRANCH_NAME = "svhs/branch_1"
+    COMMIT_ID = "4e154c8a6b" 
+    # OBJ_ID = "6bf18ee3a41ce18d8936e92f26130d4e"
+
+    speckle_data = fetch_speckle(STREAM_ID, COMMIT_ID)
+
+    # TODO speckle_data['@Windows']:
+    # TODO handle IFC data structure from Speckle as well
+    for elem in speckle_data['@Walls']:
+        elem = calculate_renovation(elem)
+        elem = calculate_new_construction(elem)
+        # pprint(elem.parameters.__dict__)
+    for elem in speckle_data['@Roofs']:
+        elem = calculate_renovation(elem)
+        elem = calculate_new_construction(elem)
+        # pprint(elem.parameters.__dict__)
+
+    send_back_to_speckle(speckle_data)
