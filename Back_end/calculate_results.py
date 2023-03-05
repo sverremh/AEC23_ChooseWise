@@ -39,7 +39,7 @@ def fetch_speckle(STREAM_ID, COMMIT_ID):
 
 def calculate_renovation(elem):
     # For that pricebook number, find price and GWP
-    if elem.parameters['Phase'] == "ForRenovation" or elem.parameters['Phase'] == "Demolished":
+    if elem.parameters['Phase'].value == "ForRenovation" or elem.parameters['Phase'].value == "Demolished":
         post = [el for el in process_data if el['number'] == elem.parameters.PricebookCode.value]
         gwp_sqm = 0
         for prop in post[0]['dynamicProperties']:
@@ -56,7 +56,7 @@ def calculate_renovation(elem):
 
 def calculate_new_construction(elem):
     # Takes volumes of materials and multiplies by data from EPD/pricebook
-    if elem.parameters['Phase'] == "New":
+    if elem.parameters['Phase'].value == "New":
         elem.parameters['GWP'] = 0
         elem.parameters['Cost'] = 0
         elem.parameters['Time'] = 0
@@ -86,7 +86,7 @@ def send_back_to_speckle(data):
         stream_id=STREAM_ID,
         branch_name=BRANCH_NAME,
         object_id=hash,
-        message="Test upload from Python"
+        message="Uploaded model with calculations from Python"
     )
     print(f"Sent {data.totalChildrenCount} elements to stream {STREAM_ID} with commit {commit_id}")
 
@@ -105,10 +105,10 @@ if __name__ == '__main__':
     for elem in speckle_data['@Walls']:
         elem = calculate_renovation(elem)
         elem = calculate_new_construction(elem)
-        # pprint(elem.parameters.__dict__)
+        pprint(elem.parameters.__dict__)
     for elem in speckle_data['@Roofs']:
         elem = calculate_renovation(elem)
         elem = calculate_new_construction(elem)
-        # pprint(elem.parameters.__dict__)
+        pprint(elem.parameters.__dict__)
 
     send_back_to_speckle(speckle_data)
