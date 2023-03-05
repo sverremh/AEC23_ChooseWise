@@ -56,6 +56,14 @@ def fetch_speckle(STREAM_ID, COMMIT_ID):
     return speckle_data
 
 
+def add_result_parameters(elem):
+    # Takes volumes of materials and multiplies by data from EPD/pricebook
+    elem.parameters['GWP'] = 0
+    elem.parameters['Cost'] = 0
+    elem.parameters['Time'] = 0
+    return elem
+
+
 def calculate_renovation(elem):
     """
     Calculates LCA, Cost, and time of a speckle element 
@@ -90,9 +98,6 @@ def calculate_renovation(elem):
 def calculate_new_construction(elem):
     # Takes volumes of materials and multiplies by data from EPD/pricebook
     if elem.parameters['Phase'].value == "New":
-        elem.parameters['GWP'] = 0
-        elem.parameters['Cost'] = 0
-        elem.parameters['Time'] = 0
         for material in elem.materialQuantities:
             try:
                 material_data = [el for el in new_data if el['name'] == material.material.name][0]
@@ -136,12 +141,14 @@ if __name__ == '__main__':
     # TODO speckle_data['@Windows']:
     # TODO handle IFC data structure from Speckle as well
     for elem in speckle_data['@Walls']:
+        elem = add_result_parameters(elem)
         elem = calculate_renovation(elem)
         elem = calculate_new_construction(elem)
-        pprint(elem.parameters.__dict__)
+        # pprint(elem.parameters.__dict__)
     for elem in speckle_data['@Roofs']:
+        elem = add_result_parameters(elem)
         elem = calculate_renovation(elem)
         elem = calculate_new_construction(elem)
-        pprint(elem.parameters.__dict__)
+        # pprint(elem.parameters.__dict__)
 
     send_back_to_speckle(speckle_data)
