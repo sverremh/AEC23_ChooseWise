@@ -11,8 +11,12 @@ import pandas as pd
 import json
 
 
+<<<<<<< Updated upstream
 # Input databases
 MOLIO_JSON = r"./Data/els_with_epd_vals_appended.json"
+=======
+MOLIO_JSON = r"./Data/RandomPriceRenBD.json" #Path for 
+>>>>>>> Stashed changes
 NEW_JSON = r"./Data/New_products.json"
 
 # Read the input data files

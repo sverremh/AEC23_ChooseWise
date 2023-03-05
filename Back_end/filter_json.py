@@ -359,9 +359,9 @@ if __name__ == '__main__':
     
     epd_posts = filter_by_edp_values('Data\\RandomPriceRenBD.json')
    
-   
+   """
     
     post_list = ['2.5-3.2,02', '2.5-2.1,02', '2.5-1.1,01', '9.1-9.1,01', '9.1-9.1,02', '1.1-3.4,02']
     times = [0.5, 0.5, 0.5, 0.4, 0.45, .8]
     append_time_to_post(f'Data\\els_with_epd_vals_appended.json', post_list, times)
-"""
+
