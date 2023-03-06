@@ -5,6 +5,9 @@
 
 ChooseWise is an app to support decision makers who need to choose if it's better to renovate, rebuild or demolish. It currently takes into account **LCA**, **cost** and **time**.  
 
+Check out the presentation with interactive demo:
+https://slides.com/arturtomczak/choosewise/fullscreen
+
 ## How to use it?
 
 1. You need an input BIM model in IFC or any authoring software that is supported by Speckle.
